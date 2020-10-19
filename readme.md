@@ -48,7 +48,7 @@ If you are using the codes, please cite our paper.
 
 [Ziluo Ding, Tiejun Huang, and Zongqing Lu. *Learning Individually Inferred Communication for Multi-Agent Cooperation*. NeurIPS'20.](https://arxiv.org/abs/2006.06455)
 
-	@inproceedings{jiang2020graph,
+	@inproceedings{ding2020learning,
         	title={Learning Individually Inferred Communication for Multi-Agent Cooperation},
         	author={Ding, Ziluo and Huang, Tiejun and Lu, Zongqing},
         	booktitle={NeurIPS},
