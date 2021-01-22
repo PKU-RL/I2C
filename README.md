@@ -1,4 +1,3 @@
-
 ## Installation
 - Known dependencies: Python (3.5.4), OpenAI gym (0.10.5), tensorflow (1.14.0), numpy (1.18.2)
 
@@ -11,12 +10,6 @@
 - `--num-episodes` total number of training episodes (default: `60000`)
 
 - `--num-adversaries`: number of adversaries in the environment (default: `0`)
-
-- `--good-policy`: algorithm used for the 'good' (non adversary) policies in the environment
-(default: `"maddpg"`; options: {`"maddpg"`, `"ddpg"`})
-
-- `--adv-policy`: algorithm used for the adversary policies in the environment
-(default: `"maddpg"`; options: {`"maddpg"`, `"ddpg"`})
 
 ### Core training parameters
 
@@ -63,14 +56,16 @@ For Predator Prey,
 
 ### Citations
 
-If you find this code useful in your research, please consider citing:
+If you are using the codes, please cite our paper.
 
-@article{ding2020learning,
-  title={Learning Individually Inferred Communication for Multi-Agent Cooperation},
-  author={Ding, Ziluo and Huang, Tiejun and Lu, Zongqing},
-  journal={arXiv preprint arXiv:2006.06455},
-  year={2020}
-}
+[Ziluo Ding, Tiejun Huang, and Zongqing Lu. *Learning Individually Inferred Communication for Multi-Agent Cooperation*. NeurIPS'20.](https://arxiv.org/abs/2006.06455)
+
+	@inproceedings{ding2020learning,
+        	title={Learning Individually Inferred Communication for Multi-Agent Cooperation},
+        	author={Ding, Ziluo and Huang, Tiejun and Lu, Zongqing},
+        	booktitle={NeurIPS},
+        	year={2020}
+	}
 
 ### Acknowledgements
 

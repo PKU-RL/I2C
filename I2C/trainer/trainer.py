@@ -242,7 +242,7 @@ class AgentTrainer(AgentTrainer):
             one_hot = [0]*action_space
             one_hot[i] = 1
             act_n[self.agent_index][:,:] = one_hot[:]
-            q_values.append(self.q_debug['q_values'](*(obs_n+act_n))[:,None])
+            q_values.append(self.q_debug['q_values'](*(obs_n+act_n))[:,None]+1e-6)
         q_values = np.concatenate(q_values,1)
         # normalize
         q_values = q_values - np.mean(q_values,1)[:,None]
@@ -340,13 +340,13 @@ class AgentTrainer(AgentTrainer):
                 one_hot = [0]*act_dim_self
                 one_hot[k] = 1
                 act_input[self.agent_index][:,:] = one_hot[:]
-                Q_s.append(np.exp(self.q_debug['q_values'](*(obs_input+act_input))))
+                Q_s.append(np.exp(self.q_debug['q_values'](*(obs_input+act_input)))+1e-8)
                 Q_tmp = []
                 for m in range(act_dim_other):
                     one_hot = [0]*act_dim_other
                     one_hot[m] = 1
                     act_input[i][:,:] = one_hot[:]
-                    Q_tmp.append(np.exp(self.q_debug['q_values'](*(obs_input+act_input))))
+                    Q_tmp.append(np.exp(self.q_debug['q_values'](*(obs_input+act_input)))+1e-8)
                 act_input[i][:,:] = act_target[:,:]
                 Q_s_t.append(Q_tmp)    
             Q_t_sum = [sum(Q_s_t[ii]) for ii in range(act_dim_self)]
