@@ -25,10 +25,10 @@ def parse_args():
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=800, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=128, help="number of units in the mlp")
-    parser.add_argument("--prior-batch-size", type=int, default=4000, help="number of samples to optimize at the same time for prior network")
-    parser.add_argument("--prior-buffer-size", type=int, default=20000, help="prior network training buffer size")
+    parser.add_argument("--prior-batch-size", type=int, default=2000, help="number of samples to optimize at the same time for prior network")
+    parser.add_argument("--prior-buffer-size", type=int, default=400000, help="prior network training buffer size")
     parser.add_argument("--prior-num-iter", type=int, default=10000, help="prior network training iterations")
-    parser.add_argument("--prior-training-rate", type=int, default=10000, help="prior network training rate")
+    parser.add_argument("--prior-training-rate", type=int, default=20000, help="prior network training rate")
     parser.add_argument("--prior-training-percentile", type=int, default=80, help="control threshold for KL value to get labels")
     parser.add_argument("--target-comm",action="store_true", default=False, help="whether to communication using prior network")
     # Checkpointing
@@ -174,6 +174,7 @@ def train(arglist):
             U.initialize()
 
         episode_rewards = [0.0]  # sum of rewards for all agents
+        comm_freq = [0.0]
         agent_rewards = [[0.0] for _ in range(env.n_agents)]  # individual agent reward
         final_ep_rewards = []  # sum of rewards for training curve
         final_ep_ag_rewards = []  # agent rewards for training curve
@@ -183,6 +184,7 @@ def train(arglist):
         training_step = 0
         t_start = time.time()
         max_mean_epi_reward = -100000
+        num_comm = 0
         print('Starting iterations...')
         while True:
             # get messages
@@ -195,6 +197,7 @@ def train(arglist):
                 for j in range(len(other_loc)):
                     if agent.target_comm(obs_n[i], np.array(other_loc[j])):
                         target_idx.append(other_idx[j])
+                num_comm += len(target_idx)
                 target_idx_n.append(target_idx)
           
             message_n = get_message(obs_n, target_idx_n, env.n_agents_obs)
@@ -213,17 +216,21 @@ def train(arglist):
             obs_n = new_obs_n
             other_loc_n = new_other_loc_n
             other_idx_n = new_other_idx_n
-            # get episode reward
+            # get episode reward and comm freq
+            comm_freq[-1] += num_comm
+            num_comm = 0
             for i, rew in enumerate(rew_n):
                 episode_rewards[-1] += rew/len(rew_n)
                 agent_rewards[i][-1] += rew
             # reset
             if done or terminal:
+                comm_freq[-1] = comm_freq[-1]/(num_others*env.n_agents*arglist.max_episode_len)
                 episode_rewards[-1]=episode_rewards[-1]/arglist.max_episode_len
                 obs_n = env.reset()
                 other_loc_n, other_idx_n = get_comm_pairs(obs_n, env.n_agents_obs, num_others)
                 episode_step = 0
-                episode_rewards.append(0)
+                comm_freq.append(0.0)
+                episode_rewards.append(0.0)
                 for a in agent_rewards:
                     a.append(0)
                 agent_info.append([[]])
@@ -253,17 +260,18 @@ def train(arglist):
             # save model, display training output
             if terminal and (len(episode_rewards) % arglist.save_rate == 0):
                 mean_epi_reward = np.mean(episode_rewards[-arglist.save_rate:])
+                mean_comm_freq = np.mean(comm_freq[-arglist.save_rate:])
                 if mean_epi_reward > max_mean_epi_reward:
                     U.save_state(arglist.save_dir, saver=saver)
                     max_mean_epi_reward = mean_epi_reward
                     print("save checkpoint...")   
                 # print statement depends on whether or not there are adversaries
                 if num_adversaries == 0:
-                    print("steps: {}, episodes: {}, mean episode reward: {}, time: {}".format(
-                        training_step, len(episode_rewards), mean_epi_reward, round(time.time()-t_start, 3)))
+                    print("steps: {}, episodes: {}, mean comm freq: {}, mean episode reward: {}, time: {}".format(
+                        training_step, len(episode_rewards), mean_comm_freq, mean_epi_reward, round(time.time()-t_start, 3)))
                 else:
-                    print("steps: {}, episodes: {}, mean episode reward: {}, agent episode reward: {}, time: {}".format(
-                        training_step, len(episode_rewards), mean_epi_reward,
+                    print("steps: {}, episodes: {}, mean comm freq: {}, mean episode reward: {}, agent episode reward: {}, time: {}".format(
+                        training_step, len(episode_rewards), mean_comm_freq, mean_epi_reward,
                         [np.mean(rew[-arglist.save_rate:]) for rew in agent_rewards], round(time.time()-t_start, 3)))
                 t_start = time.time()
                 # Keep track of final episode reward
