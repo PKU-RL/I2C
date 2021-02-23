@@ -30,7 +30,6 @@ def parse_args():
     parser.add_argument("--prior-num-iter", type=int, default=10000, help="prior network training iterations")
     parser.add_argument("--prior-training-rate", type=int, default=20000, help="prior network training rate")
     parser.add_argument("--prior-training-percentile", type=int, default=80, help="control threshold for KL value to get labels")
-    parser.add_argument("--target-comm",action="store_true", default=False, help="whether to communication using prior network")
     # Checkpointing
     parser.add_argument("--exp-name", type=str, default='exp', help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="./tmp/policy/", help="directory in which training state and model should be saved")
@@ -248,7 +247,7 @@ def train(arglist):
             loss = trainers[training_idx].update(trainers, training_step)
             # sample data and training for prior network
             prior_training_flag = True if (terminal and len(episode_rewards) % arglist.prior_training_rate == 0) else False
-            if prior_training_flag and arglist.target_comm:
+            if prior_training_flag:
                 print("gathering prior training data...")
                 is_full = trainers[training_idx].get_samples(trainers)  
                 if is_full:
