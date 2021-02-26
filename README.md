@@ -49,7 +49,7 @@
  I2C  be learned end-to-end or in a two-phase manner. This code is implemented for end-to-end manner which could take more training time compared with the latter manner
 
 For Cooperative Navigation, 
-`python3 train.py --scenario 'cn' --prior-training-percentile 70 --lr 1e-2`
+`python3 train.py --scenario 'cn' --prior-training-percentile 65 --lr 1e-2`
 
 For Predator Prey, 
 `python3 train.py --scenario 'pp' --prior-training-percentile 50 --lr 1e-3`
