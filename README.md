@@ -52,7 +52,7 @@ For Cooperative Navigation,
 `python3 train.py --scenario 'cn' --prior-training-percentile 60 --lr 1e-2`
 
 For Predator Prey, 
-`python3 train.py --scenario 'pp' --prior-training-percentile 50 --lr 1e-3`
+`python3 train.py --scenario 'pp' --prior-training-percentile 40 --lr 1e-3`
 
 ### Citations
 
