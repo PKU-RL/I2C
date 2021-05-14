@@ -49,7 +49,7 @@ def p_m_train(make_obs_ph_n, make_message_ph_n, act_space_n, num_agents_obs, p_i
         act_input_n = act_ph_n + []
         # correlation reg
         k = tf.keras.losses.KLDivergence() 
-        #KL_reg = k(blz_distribution, act_sample)
+        KL_reg = k(blz_distribution, act_sample)
         # q network
         act_input_n[p_index] = act_pd.sample()
         q_input = tf.concat(obs_ph_n + act_input_n, 1)
@@ -58,7 +58,7 @@ def p_m_train(make_obs_ph_n, make_message_ph_n, act_space_n, num_agents_obs, p_i
         q = q_func(q_input, 1, scope="q_func", type='fit', reuse=True, num_units=num_units)[:,0]
         # loss and optimization
         pg_loss = -tf.reduce_mean(q)
-        loss = pg_loss #+ KL_reg * 1e-2
+        loss = pg_loss + KL_reg * 1e-2
         optimize_expr = U.minimize_and_clip(optimizer, loss, [p_func_vars,m_func_vars], grad_norm_clipping)
         # Create callable functions
         train = U.function(inputs=obs_ph_n + message_ph_n + act_ph_n+[blz_distribution], outputs= loss, updates=[optimize_expr])
