@@ -205,7 +205,7 @@ def train(arglist):
                 action_n.append(agent.action(obs_n[i], message_n[i]))
             # environment step    
             new_obs_n, rew_n, done_n, info_n = env.step(action_n)
-            new_other_loc_n, new_other_idx_n = get_comm_pairs(obs_n, env.n_agents_obs, num_others)
+            new_other_loc_n, new_other_idx_n = get_comm_pairs(new_obs_n, env.n_agents_obs, num_others)
             episode_step += 1
             done = all(done_n)
             terminal = (episode_step >= arglist.max_episode_len)
